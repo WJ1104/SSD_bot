@@ -193,3 +193,15 @@ client.once('ready', () => {
 });
 
 client.login(process.env.BOT_TOKEN);
+
+
+// keep alive ping
+const http = require('http');
+const server = http.createServer((req, res) => res.end('bot is alive'));
+server.listen(3000, () => console.log('keep-alive server running'));
+
+setInterval(() => {
+  http.get('http://localhost:3000', (res) => {
+    console.log('[keep-alive] pinged');
+  });
+}, 14 * 60 * 1000); // every 14 minutes
