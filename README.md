@@ -5,11 +5,11 @@ Automates marketing for Society of Software Developers @ UF — announcements, e
 ---
 
 ## Features
-- 👋 **Auto-welcome** new members with club links and channel guide
-- 📣 **`/announce`** — post a formatted event embed to announcements (pings @everyone)
-- ⏰ **Auto 24hr reminders** — bot automatically reminds the server the day before any event you schedule
-- 📢 **`/remind`** — manually trigger a reminder for any event
-- 🚀 **`/recruit`** — drop a recruitment embed into any channel (great for cross-posting to other servers)
+-  **Auto-welcome** new members with club links and channel guide
+-  **`/announce`** — post a formatted event embed to announcements (pings @everyone)
+-  **Auto 24hr reminders** — bot automatically reminds the server the day before any event you schedule
+-  **`/remind`** — manually trigger a reminder for any event
+-  **`/recruit`** — drop a recruitment embed into any channel (great for cross-posting to other servers)
 
 ---
 
@@ -83,7 +83,7 @@ Or leave `message` blank to use the default pitch.
 ---
 
 ## Keeping the Bot Running 24/7
-For the bot to run continuously (not just when your laptop is open), host it for free on [Railway](https://railway.app) or [Render](https://render.com):
+For the bot to run continuously (not just when your laptop is open), host it for free on [Railway](https://railway.app) or [Render](https://render.com):* currently using render*
 1. Push the folder to a GitHub repo (make sure `.env` is in `.gitignore`!)
 2. Connect the repo to Railway/Render
 3. Add your environment variables in their dashboard

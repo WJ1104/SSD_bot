@@ -114,8 +114,12 @@ client.on('interactionCreate', async (interaction) => {
       .setFooter({ text: 'SSD UF — Building the future, one line at a time 🐊' })
       .setTimestamp();
 
-    await channelTarget.send({ embeds: [embed] });
-    await interaction.reply({ content: ` Recruitment message sent to ${channelTarget}!`, ephemeral: true });
+    try {
+  await channelTarget.send({ embeds: [embed] });
+  await interaction.reply({ content: `✅ Recruitment message sent to ${channelTarget}!`, ephemeral: true });
+} catch (err) {
+  await interaction.reply({ content: `❌ I don't have permission to post in ${channelTarget}. Give me Send Messages and Embed Links permissions in that channel.`, ephemeral: true });
+}
   }
 });
 
