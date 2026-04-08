@@ -36,26 +36,27 @@ let scheduledEvents = [
 
 // ─── WELCOME NEW MEMBERS ──────────────────────────────────────────────────────
 client.on('guildMemberAdd', async (member) => {
-  const channel = member.guild.channels.cache.get(CONFIG.WELCOME_CHANNEL_ID);
-  if (!channel) return;
+  try {
+    const embed = new EmbedBuilder()
+      .setColor(0x5865F2)
+      .setTitle(`👋 Welcome to SSD, ${member.displayName}!`)
+      .setDescription(
+        `Hey ${member.displayName}! We're stoked to have you in **Society of Software Developers @ UF** 🐊\n\n` +
+        `Here's what to check out first:`
+      )
+      .addFields(
+        { name: '📅 Upcoming Events', value: 'Keep an eye on the announcements channel for event drops', inline: false },
+        { name: '🔗 Stay Connected', value: '• Instagram: [@uf.ssd](https://instagram.com/uf.ssd)\n• LinkedIn: [SSD UF](https://linkedin.com/company/ssduf)\n• Linktree: [linktr.ee/ufssd](https://linktr.ee/ufssd)', inline: false },
+      )
+      .setThumbnail(member.guild.iconURL())
+      .setFooter({ text: 'Society of Software Developers @ UF' })
+      .setTimestamp();
 
-  const embed = new EmbedBuilder()
-    .setColor(0x5865F2)
-    .setTitle(`👋 Welcome to SSD, ${member.displayName}!`)
-    .setDescription(
-      `Hey ${member}! We're happy to have you in **Society of Software Developers @ UF** 🐊\n\n` +
-      `Here's what to check out first:`
-    )
-    .addFields(
-      { name: ' Upcoming Events', value: 'Keep an eye on <#' + CONFIG.ANNOUNCEMENTS_CHANNEL_ID + '> for event drops', inline: false },
-      { name: ' Stay Connected', value: '• Instagram: [@uf.ssd](https://instagram.com/uf.ssd)\n• LinkedIn: [SSD UF](https://linkedin.com/company/ssduf)\n• Linktree: [linktr.ee/ufssd](https://linktr.ee/ufssd)', inline: false },
-      { name: ' Say Hi', value: `Introduce yourself in <#${CONFIG.GENERAL_CHANNEL_ID}>!`, inline: false }
-    )
-    .setThumbnail(member.guild.iconURL())
-    .setFooter({ text: 'Society of Software Developers @ UF' })
-    .setTimestamp();
-
-  await channel.send({ embeds: [embed] });
+    await member.send({ embeds: [embed] });
+  } catch (err) {
+    // user has DMs off, silently ignore
+    console.log(`[SSD Bot] Could not DM ${member.displayName} — DMs probably off`);
+  }
 });
 
 // ─── SLASH COMMANDS ───────────────────────────────────────────────────────────
