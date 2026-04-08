@@ -19,6 +19,44 @@ const PORT = Number(process.env.PORT || 3000);
 const server = http.createServer((req, res) => res.end('bot is alive'));
 server.listen(PORT, () => console.log(`keep-alive server running on :${PORT}`));
 
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+const WELCOME_INTROS = [
+  "Yo — welcome to **SSD**!",
+  "Ayy welcome to **SSD**!",
+  "Welcome in!",
+  "Glad you're here — welcome to **SSD**!",
+  "Welcome to **Society of Software Developers**!",
+];
+
+const WELCOME_LINES = [
+  "We post events, workshops, and opportunities in announcements — tap in.",
+  "Workshops, projects, speakers, and people who actually build. You’re in the right spot.",
+  "Glad you joined — SSD’s a good place to meet devs and ship stuff.",
+  "Welcome to the club — keep an eye on announcements for the next event.",
+  "If you’re trying to get better at building, you’re in the right server.",
+];
+
+const WELCOME_CHANNEL_LINES = [
+  "welcome in",
+  "welcome welcome",
+  "glad you're here",
+  "ayyy welcome",
+  "welcome to SSD",
+];
+
+// GIFs for a non-repetitive "hi" vibe. You can swap these any time.
+// Tip: if a link ever dies, just remove/replace it.
+const WELCOME_GIF_URLS = [
+  'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
+  'https://media.giphy.com/media/3ogwFGEHrVxusDbDjO/giphy.gif',
+  'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
+  'https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif',
+  'https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif',
+];
+
 
 const CONFIG = {
   ANNOUNCEMENTS_CHANNEL_ID: process.env.ANNOUNCEMENTS_CHANNEL_ID || 'YOUR_ANNOUNCEMENTS_CHANNEL_ID',
@@ -55,25 +93,49 @@ client.on('guildMemberAdd', async (member) => {
   recentlyWelcomed.set(key, now);
 
   try {
+    const intro = pickRandom(WELCOME_INTROS);
+    const line = pickRandom(WELCOME_LINES);
+    const gifUrl = pickRandom(WELCOME_GIF_URLS);
+
     const embed = new EmbedBuilder()
       .setColor(0x5865F2)
-      .setTitle(`👋 Welcome to SSD, ${member.displayName}!`)
+      .setTitle(`👋 ${intro}`)
       .setDescription(
-        `Hey ${member.displayName}! We're stoked to have you in **Society of Software Developers @ UF** 🐊\n\n` +
-        `Here's what to check out first:`
+        `Hey ${member.displayName} — we're stoked to have you here 🐊\n\n` +
+        `${line}`
       )
       .addFields(
         { name: '📅 Upcoming Events', value: 'Keep an eye on the announcements channel for event drops', inline: false },
         { name: '🔗 Stay Connected', value: '• Instagram: [@uf.ssd](https://instagram.com/uf.ssd)\n• LinkedIn: [SSD UF](https://linkedin.com/company/ssduf)\n• Linktree: [linktr.ee/ufssd](https://linktr.ee/ufssd)', inline: false },
       )
+      .setImage(gifUrl)
       .setThumbnail(member.guild.iconURL())
       .setFooter({ text: 'Society of Software Developers @ UF' })
       .setTimestamp();
 
-    await member.send({ embeds: [embed] });
+    // DM the member (best UX, avoids a noisy public channel)
+    try {
+      await member.send({ embeds: [embed] });
+    } catch {
+      console.log(`[SSD Bot] Could not DM ${member.displayName} — DMs probably off`);
+    }
+
+    // Also greet in the welcome channel (short + fun)
+    const welcomeChannel = member.guild.channels.cache.get(CONFIG.WELCOME_CHANNEL_ID);
+    if (welcomeChannel?.isTextBased?.()) {
+      const publicLine = pickRandom(WELCOME_CHANNEL_LINES);
+      try {
+        await welcomeChannel.send({
+          content: `<@${member.id}> ${publicLine}`,
+          embeds: [new EmbedBuilder().setImage(gifUrl)],
+          allowedMentions: { users: [member.id] },
+        });
+      } catch (err) {
+        console.log(`[SSD Bot] Could not post welcome in channel for ${member.displayName} — missing perms?`);
+      }
+    }
   } catch (err) {
-    // user has DMs off, silently ignore
-    console.log(`[SSD Bot] Could not DM ${member.displayName} — DMs probably off`);
+    console.log(`[SSD Bot] Welcome flow errored for ${member.displayName}`);
   }
 });
 
