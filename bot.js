@@ -12,6 +12,13 @@ const client = new Client({
   partials: [Partials.GuildMember],
 });
 
+// Render (Web Service) expects a port bind; harmless elsewhere.
+// Also helps keep the service "awake" on free tiers.
+const http = require('http');
+const PORT = Number(process.env.PORT || 3000);
+const server = http.createServer((req, res) => res.end('bot is alive'));
+server.listen(PORT, () => console.log(`keep-alive server running on :${PORT}`));
+
 
 const CONFIG = {
   ANNOUNCEMENTS_CHANNEL_ID: process.env.ANNOUNCEMENTS_CHANNEL_ID || 'YOUR_ANNOUNCEMENTS_CHANNEL_ID',
@@ -35,7 +42,18 @@ let scheduledEvents = [
 ];
 
 // ─── WELCOME NEW MEMBERS ──────────────────────────────────────────────────────
+// Dedupe welcome DMs in case Discord sends duplicate join events during reconnects.
+const recentlyWelcomed = new Map(); // key: `${guildId}:${userId}` -> timestamp (ms)
+
 client.on('guildMemberAdd', async (member) => {
+  if (member.user?.bot) return;
+
+  const key = `${member.guild.id}:${member.user.id}`;
+  const now = Date.now();
+  const last = recentlyWelcomed.get(key);
+  if (last && now - last < 60_000) return; // ignore duplicates within 60s
+  recentlyWelcomed.set(key, now);
+
   try {
     const embed = new EmbedBuilder()
       .setColor(0x5865F2)
@@ -116,11 +134,14 @@ client.on('interactionCreate', async (interaction) => {
       .setTimestamp();
 
     try {
-  await channelTarget.send({ embeds: [embed] });
-  await interaction.reply({ content: `✅ Recruitment message sent to ${channelTarget}!`, ephemeral: true });
-} catch (err) {
-  await interaction.reply({ content: `❌ I don't have permission to post in ${channelTarget}. Give me Send Messages and Embed Links permissions in that channel.`, ephemeral: true });
-}
+      await channelTarget.send({ embeds: [embed] });
+      await interaction.reply({ content: `✅ Recruitment message sent to ${channelTarget}!`, ephemeral: true });
+    } catch (err) {
+      await interaction.reply({
+        content: `❌ I don't have permission to post in ${channelTarget}. Give me **Send Messages** and **Embed Links** permissions in that channel.`,
+        ephemeral: true
+      });
+    }
   }
 });
 
@@ -193,20 +214,8 @@ function defaultRecruitMessage() {
 }
 
 // ─── READY ────────────────────────────────────────────────────────────────────
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log(` SSD Bot is online as ${client.user.tag}`);
 });
 
 client.login(process.env.BOT_TOKEN);
-
-
-// keep alive ping
-const http = require('http');
-const server = http.createServer((req, res) => res.end('bot is alive'));
-server.listen(3000, () => console.log('keep-alive server running'));
-
-setInterval(() => {
-  http.get('http://localhost:3000', (res) => {
-    console.log('[keep-alive] pinged');
-  });
-}, 14 * 60 * 1000); // every 14 minutes
