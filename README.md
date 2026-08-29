@@ -13,15 +13,15 @@ Automates marketing for Society of Software Developers @ UF — announcements, e
 
 ---
 
-## Setup (Step by Step)
+## Setup (Step by Step)     (for future reference)
 
 ### Step 1 — Create the Bot on Discord
 1. Go to [discord.com/developers/applications](https://discord.com/developers/applications)
 2. Click **New Application** → name it "SSD Bot"
 3. Go to **Bot** tab → click **Reset Token** → copy the token (save it, you only see it once)
 4. Under Bot, scroll down and enable:
-   - ✅ Server Members Intent
-   - ✅ Message Content Intent
+   -  Server Members Intent
+   - Message Content Intent
 5. Go to **OAuth2 → General** and copy your **Client ID**
 
 ### Step 2 — Invite the Bot to Your Server
@@ -31,7 +31,7 @@ Automates marketing for Society of Software Developers @ UF — announcements, e
 4. Copy the generated URL → open it → invite the bot to SSD's server
 
 ### Step 3 — Get Your Discord IDs
-You need Developer Mode on. In Discord: **Settings → Advanced → Developer Mode ✅**
+You need Developer Mode on. In Discord: **Settings → Advanced → Developer Mode **
 
 Then right-click to copy:
 - Your **server** → Copy Server ID = `GUILD_ID`
@@ -56,7 +56,7 @@ node register-commands.js  # register slash commands (run once)
 node bot.js              # start the bot
 ```
 
-You should see: `✅ SSD Bot is online as SSD Bot#XXXX`
+You should see: ` SSD Bot is online as SSD Bot#XXXX`
 
 ---
 
